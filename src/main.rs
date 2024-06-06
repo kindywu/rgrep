@@ -29,28 +29,28 @@ async fn main() -> Result<()> {
 
     let regex = Regex::new(&args.pattern)?;
 
-    for entry in glob(&args.glob)? {
-        if let Ok(path) = entry {
-            println!("{}", path.display().to_string().blue());
-            let file = File::open(path).await?;
+    let paths: Vec<_> = glob(&args.glob)?.filter_map(|g| g.ok()).collect();
 
-            let mut lines = BufReader::new(file).lines();
+    for path in paths {
+        println!("{}", path.display().to_string().blue());
+        let file = File::open(path).await?;
 
-            let mut i = 0;
-            while let Some(line) = lines.next_line().await? {
-                i += 1;
+        let mut lines = BufReader::new(file).lines();
 
-                if let Some(m) = regex.find(&line) {
-                    let Range { start, end } = m.range();
-                    let prefix = &line[..start];
-                    println!(
-                        "{0: >6}: {1}{2}{3}",
-                        i.to_string().blue(),
-                        prefix,
-                        &line[start..end].red(),
-                        &line[end..]
-                    );
-                }
+        let mut i = 0;
+        while let Some(line) = lines.next_line().await? {
+            i += 1;
+
+            if let Some(m) = regex.find(&line) {
+                let Range { start, end } = m.range();
+                let prefix = &line[..start];
+                println!(
+                    "{0: >2}: {1}{2}{3}",
+                    i.to_string().blue(),
+                    prefix,
+                    &line[start..end].red(),
+                    &line[end..]
+                );
             }
         }
     }
