@@ -21,6 +21,7 @@ struct Args {
 }
 
 // cargo run -- --pattern he\\w+ --glob "assets/test*.txt"
+// cargo run -- --pattern 好 --glob "assets/test*.txt"
 #[tokio::main]
 async fn main() -> Result<()> {
     // 解析命令行 rgrep ，读取正则表达式和文件
