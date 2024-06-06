@@ -31,22 +31,28 @@ async fn main() -> Result<()> {
 
     let paths: Vec<_> = glob(&args.glob)?.filter_map(|g| g.ok()).collect();
 
+    let mut file_no = 0;
     for path in paths {
-        println!("{}", path.display().to_string().blue());
+        file_no += 1;
+        println!(
+            "{}: {}",
+            file_no.to_string().blue(),
+            path.display().to_string().blue()
+        );
         let file = File::open(path).await?;
 
         let mut lines = BufReader::new(file).lines();
 
-        let mut i = 0;
+        let mut line_no = 0;
         while let Some(line) = lines.next_line().await? {
-            i += 1;
+            line_no += 1;
 
             if let Some(m) = regex.find(&line) {
                 let Range { start, end } = m.range();
                 let prefix = &line[..start];
                 println!(
-                    "{0: >2}: {1}{2}{3}",
-                    i.to_string().blue(),
+                    "{0: >6}: {1}{2}{3}",
+                    line_no.to_string().green(),
                     prefix,
                     &line[start..end].red(),
                     &line[end..]
